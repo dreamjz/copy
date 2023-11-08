@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"regexp"
 
 	"golang.org/x/sync/semaphore"
 )
@@ -20,6 +21,9 @@ type Options struct {
 
 	// OnErr lets called decide whether or not to continue on particular copy error.
 	OnError func(src, dest string, err error) error
+
+	// OnNameMatch
+	OnNameMatch func(re *regexp.Regexp, src string) string
 
 	// Skip can specify which files should be skipped
 	Skip func(srcinfo os.FileInfo, src, dest string) (bool, error)
@@ -80,6 +84,8 @@ type Options struct {
 	// copying for all directories.
 	// If NumOfWorkers is 0 or 1, this function will be ignored.
 	PreferConcurrent func(srcdir, destdir string) (bool, error)
+
+	NameRegexp *regexp.Regexp
 
 	// Internal use only
 	intent intent
