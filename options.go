@@ -140,21 +140,28 @@ func getDefaultOptions(src, dest string) Options {
 // assureOptions struct, should be called only once.
 // All optional values MUST NOT BE nil/zero after assured.
 func assureOptions(src, dest string, opts ...Options) Options {
+	// Option 可选，且只有一个生效
+	// 获取默认 option
 	defopt := getDefaultOptions(src, dest)
+	// 没有传入 option 直接返回默认值
 	if len(opts) == 0 {
 		return defopt
 	}
+	// 未设置 OnSymlink 则设为默认值：Shallow
 	if opts[0].OnSymlink == nil {
 		opts[0].OnSymlink = defopt.OnSymlink
 	}
+	// 这里 defopt.Skip 也是 nil， Why?
 	if opts[0].Skip == nil {
 		opts[0].Skip = defopt.Skip
 	}
+	// 设置了权限，则根据权限值改变文件权限
 	if opts[0].AddPermission > 0 {
 		opts[0].PermissionControl = AddPermission(opts[0].AddPermission)
-	} else if opts[0].PermissionControl == nil {
+	} else if opts[0].PermissionControl == nil { // 未设置权限， 则保留原权限
 		opts[0].PermissionControl = PerservePermission
 	}
+	// 设置额外字段，包含信号量，和并发有关？
 	opts[0].intent.src = defopt.intent.src
 	opts[0].intent.dest = defopt.intent.dest
 	return opts[0]
